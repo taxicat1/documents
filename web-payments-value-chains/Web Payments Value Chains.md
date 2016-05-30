@@ -16,15 +16,25 @@ The communication between the Merchant and the Payment Provider is unchanged fro
 
 ![Value Chain Diagram for Android Pay](files/androidpay.png)
 
+This value chain may also cover Apple Pay and other similar payment methods.
+
 In this value chain, when considering the Chrome browser as the mediator, both the Mediator and the Payment Provider are owned by the same company. Currently Android Pay is only available to native apps in the Play Store, but Google would like to extend the range of Android Pay to also cover browser payments. Although there may well be other incentives for Google to pursue this, this incentive is really all they need. Since there is also value for both users and merchants in enabling Android Pay in the browser, this value chain is viable.
 
 
 ![Value Chain Diagram for Bitcoin](files/bitcoin.png)
 
+This value chain may also cover other cryptocurrencies and other alternative payment methods.
+
 Although some webshops accept payment by Bitcoin and other cryptocurrencies, I would say that most don't. The addition of Bitcoin payments through Web Payments seems positive for at least a subset of the users, and for the Bitcoin community and exchanges, which might see increased activity.
 
 The case for Mediators and Merchants is, however, less clear. Mediators that already implement the Web Payments standard do not need to do anything special in order to also be able to handle cryptocurrencies, so long as they implement support for third-party applications. Merchants have the least incentive to care about Bitcoin through Web Payments. In addition to the extra work adapting to use the PaymentRequest API, they also have to interface with various cryptocurrency backends. Since Bitcoin is still quite new, there may not be a lot of trust in this as a viable and reliable payment method.
 
-The conclusion is that this value chain is weak. Stronger incentives may be required in order to get merchants adopt this.
+The conclusion is that this value chain is weak. Stronger incentives may be required in order to get merchants to adopt this.
+
+
+![Value Chain Diagram for Visa Checkout](files/visacheckout.png)
+
+This value chain may also cover other payment methods such as PayPal.
+
 
 ## DOCUMENT UNDER CONSTRUCTION. MORE TO COME
