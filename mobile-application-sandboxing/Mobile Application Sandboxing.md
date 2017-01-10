@@ -1,4 +1,4 @@
-# Finding Software Vulnerabilities
+# Mobile Application Sandboxing
 ## Abstract
 As mobile devices replace old-fashioned computers for more and more of our daily tasks, they become very attractive targets for criminals. Despite efforts to detect and block malicious applications from entering the app stores, all the major stores contain significant amounts of malicious apps. It is up to the security mechanisms implemented in the mobile platforms to keep the users safe from fraud and identity theft. One common security mechanism that can be found in all the major mobile platforms, is *application sandboxing*.
 
