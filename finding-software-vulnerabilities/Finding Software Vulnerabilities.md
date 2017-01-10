@@ -8,4 +8,4 @@ In this study, we will dive into the world of software vulnerabilities, and how 
 
 
 ## The full paper
-[Finding Software Vulnerabilities.pdf](http://tommythorsen.github.io/documents/finding-software-vulnerabilities/files/Finding%20Software%20Vulnerabilities.pdf)
+[Finding Software Vulnerabilities.pdf](http://tommythorsen.github.io/documents/finding-software-vulnerabilities/Finding%20Software%20Vulnerabilities.pdf)

@@ -5,7 +5,7 @@ One of the big questions with regard to the upcoming [Web Payments](https://w3c.
 In this text, I have chosen four different scenarios, and drawn up the respective value chains. The chosen scenarios are "Basic Card Payment", "Android Pay", "Bitcoin Payment" and "Visa Checkout as a Payment App".
 
 
-![Value Chain Diagram for Basic Card Payments](files/basiccard.png)
+![Value Chain Diagram for Basic Card Payments](basiccard.png)
 
 Basic card payments are the most prevalent type of payment on the web, and currently this is handled by the user typing in all of his card data in every single merchant. This is a lot of work and a major cause of _digital shopping cart abandonment_.
 
@@ -14,14 +14,14 @@ By storing the card information in the Payment Mediator (e.g. the browser), the 
 The communication between the Merchant and the Payment Service Provider (PSP) is unchanged from the non-web-payments scenario, so the PSP is not relevant for this value chain. We see that the other three actors in this value chain stands to gain from the adoption of this technology, and so it seems viable.
 
 
-![Value Chain Diagram for Android Pay](files/androidpay.png)
+![Value Chain Diagram for Android Pay](androidpay.png)
 
 This value chain may also cover Apple Pay and other similar payment methods.
 
 In this value chain, when considering the Chrome browser as the mediator, both the Mediator and the PSP are owned by the same company. Currently Android Pay is only available to native apps in the Play Store, but Google would like to extend the range of Android Pay to also cover browser payments. Although there may well be other incentives for Google to pursue this, this incentive is really all they need. Since there is also value for both users and merchants in enabling Android Pay in the browser, this value chain is viable.
 
 
-![Value Chain Diagram for Bitcoin](files/bitcoin.png)
+![Value Chain Diagram for Bitcoin](bitcoin.png)
 
 This value chain may also cover other cryptocurrencies and other alternative payment methods.
 
@@ -32,7 +32,7 @@ The case for Mediators and Merchants is, however, less clear. Mediators that alr
 The conclusion is that this value chain is weak. Stronger incentives may be required in order to get merchants to adopt this.
 
 
-![Value Chain Diagram for Visa Checkout](files/visacheckout.png)
+![Value Chain Diagram for Visa Checkout](visacheckout.png)
 
 This value chain may also cover other payment methods such as PayPal.
 
