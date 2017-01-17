@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""
+This is a tool for finding new s-boxes
+"""
+
+import fractions
+import os
+import random
+import subprocess
+import sys
+
+from optparse import OptionParser
+
+# The following dictionary contains a single polynomial of each size up to 11.
+# For use as field generator polynomial.
+irreduciblePolynomials = {
+     2 : "111",
+     3 : "1011",
+     4 : "10011",
+     5 : "100101",
+     6 : "1000011",
+     7 : "10000011",
+     8 : "100011101",
+     9 : "1000010001",
+    10 : "10000001001",
+    11 : "100000000101",
+    }
+
+parser = OptionParser(usage="%prog [options]", description=__doc__.strip())
+parser.add_option("-n", "--n", dest="n", type="int",
+        help="The value of 'n', the width of the s-box.")
+parser.add_option("-r", "--random", dest="random",
+        action="store_true", default=False,
+        help="Generate a single random s-box")
+(options, args) = parser.parse_args()
+
+if not options.n:
+    parser.error("Please specify the width of the s-box")
+
+n = options.n
+
+m = (n - 1) // 2
+
+# Find all valid 'd'
+D = dict()
+
+# Gold's function
+for k in range(1, m + 1):
+    if fractions.gcd(n, k) == 1:
+        d = 2 ** k + 1
+        D[d] = "Gold's function, d = {}, k = {}".format(d, k)
+        for i in range(1, n):
+            dp = (2 ** i * d) % (2 ** n - 1)
+            if not dp in D:
+                D[dp] = "Gold's function + Dobbertin's transformation, d = {}, d_orig = {}, i = {}".format(dp, d, i)
+
+# Kasami's function
+for k in range(2, m + 1):
+    if fractions.gcd(n, k) == 1:
+        d = 2 ** (2 * k) - 2 ** k + 1
+        D[d] = "Kasami's function, d = {}, k = {}".format(d, k)
+        for i in range(1, n):
+            dp = (2 ** i * d) % (2 ** n - 1)
+            if not dp in D:
+                D[dp] = "Kasami's function + Dobbertin's transformation, d = {}, d_orig = {}, i = {}".format(dp, d, i)
+
+f = irreduciblePolynomials[n]
+
+def createSbox(file, d, description, a, b):
+    child = subprocess.Popen(["-c",
+        "./create-sbox -f {} -a {:b} -b {:b} -n {} -d {}".format(
+            f, a, b, n, d) ],
+            stdout = subprocess.PIPE,
+            shell = True)
+    sbox = child.communicate()[0]
+
+    child = subprocess.Popen(["-c",
+        "./check-sbox -" ],
+            stdin = subprocess.PIPE,
+            stdout = subprocess.PIPE,
+            shell = True)
+    child.stdin.write(sbox)
+    evaluation = child.communicate()[0].decode("utf-8")
+
+    sbox = sbox.decode("utf-8")
+
+    file.write("# {}\n".format(description))
+    file.write("# f = {}, a = {:b}, b = {:b}\n".format(f, a, b))
+    file.write("#\n")
+    for line in evaluation.splitlines():
+        file.write("# {}\n".format(line))
+    file.write(sbox)
+
+if options.random:
+    d, description = random.choice(list(D.items()))
+    a = random.randrange(0, 2 ** (n - 1))
+    b = random.randrange(0, 2 ** (n - 1))
+    createSbox(sys.stdout, d, description, a, b)
+else:
+    if not os.path.exists("out"):
+        os.mkdir("out")
+
+    totalCount = len(D) * (2 ** (n - 1) - 1) * (2 ** (n - 1))
+    counter = 1
+    for d, description in D.items():
+        for a in range(1, 2 ** (n - 1)):
+            for b in range(0, 2 ** (n - 1)):
+                filename = os.path.join("out", "{:08}.sbox".format(counter))
+                file = open(filename, 'w')
+                createSbox(file, d, description, a, b)
+                file.close();
+
+                progress = "Generated: {} / {}".format(counter, totalCount)
+                sys.stdout.write(progress)
+                sys.stdout.flush()
+                sys.stdout.write("\b" * (len(progress) + 1))
+
+                counter += 1
+
+sys.stdout.write("\n")
+

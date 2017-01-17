@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+"""
+This is a tool for checking the strength of an s-box
+"""
+
+import math
+import sys
+
+from optparse import OptionParser
+
+wtcache = list()
+
+for i in range(0, 2 ** 11):
+    wtcache.append(bin(i).count("1"))
+
+def wt(number):
+    """
+    Calculate the hamming weight of a binary number
+    """
+    return wtcache[number]
+
+
+def bit(number, bit):
+    """
+    Extract the value of a single bit, bit 0 being the least significant
+    """
+    return (number >> bit) & 1
+
+def getMaxNonlinearity(n):
+    if n % 2 == 0:
+        return int(2 ** (n - 1) - 2 ** (n / 2 - 1))
+    else:
+        return int(2 ** (n - 1) - 2 ** ((n - 1) / 2))
+
+def checkNonlinear(S):
+    n = math.log(len(S), 2)
+    m = 0
+    for alpha in range(0, len(S)):
+        for beta in range(0, len(S)):
+            c = -(len(S) // 2)
+            for x in range(0, len(S)):
+                if (wt(x & alpha) % 2) == (wt(S[x] & beta) % 2):
+                    c += 1
+            #sys.stdout.write("{:3}".format(c))
+            if alpha != 0 or beta != 0:
+                m = max(m, abs(c))
+
+        #sys.stdout.write("\n")
+
+    nonlinearity = int(2 ** (n - 1) - m)
+    maxNonlinearity = getMaxNonlinearity(n)
+
+    # Return true if the nonlinearity equals the maximum possible
+    return nonlinearity == maxNonlinearity, "{}/{}".format(nonlinearity, maxNonlinearity)
+
+
+def checkInvertible(S):
+    i = len(S)
+    A = [ False ] * len(S)
+    for s in S:
+        if s < 0 or s >= len(S):
+            return False
+
+        if A[s]:
+            return False
+        else:
+            A[s] = True
+            i -= 1
+
+    return i == 0
+
+
+def checkSAC(S):
+    changeCount = 0
+    length = len(S)
+    bits = int(math.log(len(S), 2))
+    for i in range(0, length):
+        for b in range(0, bits):
+            iprime = i ^ (1 << b)
+            changeCount += wt(S[i] ^ S[iprime])
+
+    sac = changeCount / (length * bits * bits)
+    return sac == 0.5, "{}".format(sac)
+
+
+def checkBIC(S):
+    corr = dict()
+
+    length = len(S)
+    bits = int(math.log(len(S), 2))
+    for i in range(0, length):
+        for b in range(0, bits):
+            s = S[i]
+            ip = i ^ (1 << b)
+            sp = S[ip]
+
+            for j in range(0, bits):
+                for k in range(0, bits):
+                    if j == k: continue
+                    if not (j, k) in corr:
+                        corr[j, k] = 0
+
+                    sj = bit(s, j)
+                    sk = bit(s, k)
+                    spj = bit(sp, j)
+                    spk = bit(sp, k)
+
+                    if (sj ^ spj) == (sk ^ spk):
+                        corr[j, k] += 1 - 2 * (spj ^ spk)
+
+    largest = 0
+    for c in corr.values():
+        largest = max(largest, abs(c))
+
+    return largest == 0, "{}".format(largest)
+
+
+def checkSbox(S):
+    nonlinear, description = checkNonlinear(S)
+    print("NONLINEAR: {} ({})".format(nonlinear, description))
+
+    invertible = checkInvertible(S)
+    print("INVERTIBLE: {}".format(invertible))
+
+    sac, description = checkSAC(S)
+    print("SAC: {} ({})".format(sac, description))
+
+    bic, description = checkBIC(S)
+    print("BIC: {} ({})".format(bic, description))
+
+    total = nonlinear and invertible and sac and bic
+    if total:
+        print("PASS")
+    else:
+        print("FAIL")
+
+    return total
+
+parser = OptionParser(usage="%prog files", description=__doc__.strip())
+(options, args) = parser.parse_args()
+
+for filename in args:
+    if filename == "-":
+        f = sys.stdin
+    else:
+        print("{}:".format(filename))
+        f = open(filename, "r")
+
+    buffer = ""
+    for line in f:
+        if line[0] == "#":
+            continue
+        buffer += line
+
+    result = checkSbox(eval(buffer))
+
+    if filename == "-":
+        if result:
+            exit(0)
+        else:
+            exit(1)
+    else:
+        print()
+        f.close()

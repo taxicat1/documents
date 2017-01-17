@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""
+This is a tool for generating s-boxes
+"""
+
+import numpy
+import sys
+
+from auxiliary.g2polynomial import G2Polynomial
+from optparse import OptionParser
+
+class InputData:
+    def __init__(self, f, a, b, n, d):
+        self.f = None
+        self.a = None
+        self.b = None
+        self.n = None
+        self.d = None
+
+        if f: self.f = G2Polynomial(f)
+        if a: self.a = G2Polynomial(a)
+        if b: self.b = G2Polynomial(b)
+        if n: self.n = int(n)
+        if d: self.d = int(d)
+
+def gatherData(data):
+    """
+    Prompt the user for the data we need to build the s-box.
+    """
+
+    if not data.f:
+        print("Please enter f(x) as binary value (101001 => x^5 + x^3 + 1)")
+        i = input("[default=101001]> ")
+        if i == "": i = "101001"
+        data.f = G2Polynomial(i)
+        print("\nf(x) = {}, {}".format(str(data.f), data.f.toBinaryString()))
+
+    if not data.a:
+        print("\nPlease enter a(x) as binary value (10010 => x^4 + x)")
+        i = input("[default=10010]> ")
+        if i == "": i = "10010"
+        data.a = G2Polynomial(i)
+        print("\na(x) = {}, {}".format(str(data.a), data.a.toBinaryString()))
+
+    if not data.b:
+        print("\nPlease enter b(x) as binary value (1111 => x^3 + x^2 + x + 1)")
+        i = input("[default=1111]> ")
+        if i == "": i = "1111"
+        data.b = G2Polynomial(i)
+        print("\nb(x) = {}, {}".format(str(data.b), data.b.toBinaryString()))
+
+    if not data.n:
+        print("\nPlease enter the value of n")
+        i = input("[default=5]> ")
+        if i == "": i = "5"
+        data.n = int(i)
+
+        m = (data.n - 1) // 2
+        print("\nm = {}".format(m))
+
+    if not data.d:
+        print("\nPlease choose a method for d")
+        print("  1) Enter d explicitly")
+        print("  2) d = 2^k + 1, (n,k) = 1, 1 <= k <= m (Gold's function)")
+        print("  3) d = 2^2k - 2^k + 1, (n,k) = 1, 2 <= k <= m (Kasami's function)")
+        i = input("[default=2]> ")
+        if i == "": i = "2"
+        dfunc = int(i)
+
+        if dfunc == 1:
+            print("\nPlease enter the value of d")
+            data.d = int(input("> "))
+        elif dfunc == 2:
+            print("\nPlease enter the value of k")
+            i = input("[default=2]> ")
+            if i == "": i = "2"
+            k = int(i)
+            data.d = 2 ** k + 1
+        elif dfunc == 3:
+            print("\nPlease enter the value of k")
+            k = int(input("> "))
+            data.d = 2 ** (2 * k) - 2 ** k + 1
+
+        print("\nd = {}".format(data.d))
+
+    return data
+
+
+def calculateSBox(data):
+    """
+    Calculate the s-box based on the values and polynomials in 'data'
+    """
+
+    fieldSize = 2 ** data.n - 1
+
+    # Construct the finite field
+    field = list()
+    field.append(G2Polynomial("1"))
+    polyx = G2Polynomial("10")
+    p = polyx
+    for index in range(1, fieldSize):
+        field.append(p)
+        p = (p * polyx) % data.f
+
+    answers = numpy.empty((fieldSize + 1, 4), dtype=object)
+
+    # Calculate the entry for x = 0
+    answers[0] = [
+            '0' * data.n,
+            '0' * data.n,
+            '0' * data.n,
+            data.b.toBinaryString(data.n)
+            ]
+
+    # Calculate the rest of the entries
+    for index in range(0, fieldSize):
+        p1 = field[index]
+        p2 = field[(index * data.d) % fieldSize]
+        p3 = (data.a * p2) % data.f
+        p4 = (p3 + data.b) % data.f
+
+        x = int(p1.toBinaryString(), 2)
+        answers[x] = [
+                p1.toBinaryString(data.n),
+                p2.toBinaryString(data.n),
+                p3.toBinaryString(data.n),
+                p4.toBinaryString(data.n),
+                ]
+
+    return answers
+
+
+parser = OptionParser(usage="%prog [options]", description=__doc__.strip())
+parser.add_option("-f", "--f", dest="f",
+        help="The field generating polynomial f(x) in the form of a binary string")
+parser.add_option("-a", "--a", dest="a",
+        help="The polynomial a(x) in the form of a binary string")
+parser.add_option("-b", "--b", dest="b",
+        help="The polynomial b(x) in the form of a binary string")
+parser.add_option("-n", "--n", dest="n", type="int",
+        help="The value of 'n', the width of the s-box")
+parser.add_option("-d", "--d", dest="d", type="int",
+        help="The value of 'd'")
+(options, args) = parser.parse_args()
+
+# Initialize the inputdata based on command line options
+data = InputData(options.f, options.a, options.b, options.n, options.d)
+
+# Query the user for any remaining mandatory options
+data = gatherData(data)
+
+# Create the s-box based on the data
+answers = calculateSBox(data)
+
+sys.stdout.write("[\n")
+
+index = 0
+for (a, b, c, d) in answers:
+    if index != 0:
+        sys.stdout.write(",")
+        if index % 8 == 0:
+            sys.stdout.write("\n")
+        else:
+            sys.stdout.write(" ")
+    sys.stdout.write("{}".format(int(d, 2)))
+    index += 1
+
+sys.stdout.write("\n]\n")

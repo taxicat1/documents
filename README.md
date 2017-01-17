@@ -4,6 +4,9 @@ In this repository, I will collect documents, writings, papers and publications 
 ## [Finding Software Vulnerabilities](finding-software-vulnerabilities/Finding%20Software%20Vulnerabilities.md)
 At the time of writing this paper, I knew very little about how one would go about finding a software vulnerability, and potentially exploit it, so when I got the chance, I did some research into existing publications on the subject, and summarized everything in this paper.
 
+## [Generating S-Boxes for Block Ciphers](generating-s-boxes/Generating%20S-Boxes.md)
+A paper originally written for a crypto course. Explains how to generate s-boxes using "almost perfect nonlinear" functions, and how to test the quality of these generated s-boxes to weed out the ones that are not suitable.
+
 ## [Mobile Application Sandboxing](mobile-application-sandboxing/Mobile%20Application%20Sandboxing.md)
 This paper explores the technology used to protect users of mobile phones against malicious application by sandboxing them.
 
