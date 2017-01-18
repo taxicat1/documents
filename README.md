@@ -8,7 +8,7 @@ At the time of writing this paper, I knew very little about how one would go abo
 A paper originally written for a crypto course. Explains how to generate s-boxes using "almost perfect nonlinear" functions, and how to test the quality of these generated s-boxes to weed out the ones that are not suitable.
 
 ## [Mobile Application Sandboxing](mobile-application-sandboxing/Mobile%20Application%20Sandboxing.md)
-This paper explores the technology used to protect users of mobile phones against malicious application by sandboxing them.
+This paper explores the technology used to protect users of mobile phones against malicious applications by means of sandboxing. We will look at possible attacks and ways that these sandboxes could be improved.
 
 ## [Web Payments Value Chains](web-payments-value-chains/Web%20Payments%20Value%20Chains.md)
 I have spent quite some time working with the [Web Payments](https://www.w3.org/Payments/) specifications, and have had numerous discussions with various people on what the best strategy for adoption would be, and whether the technology is even viable. This document expresses the various forms of web payments as value chains, which provides an interesting and illuminating perspective on the subject.
